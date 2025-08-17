@@ -1111,4 +1111,46 @@ body {
         max-width: none;
     }
 }
-
+/* Thêm vào cuối file style.css */
+.auth-btn {
+    background: transparent;
+    color: #6c63ff;
+    border: 1px solid #6c63ff;
+    border-radius: 18px;
+    padding: 6px 16px;
+    font-size: 1rem;
+    margin-left: 12px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.auth-btn:hover {
+    background: #6c63ff;
+    color: #fff;
+}
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    overflow: auto;
+}
+.modal .modal-backdrop {
+    position: absolute;
+    width: 100%; height: 100%;
+    left: 0; top: 0;
+    background: rgba(0,0,0,0.25);
+}
+.modal .modal-content {
+    background: #fff;
+    margin: 8% auto;
+    padding: 32px 28px 24px 28px;
+    border-radius: 14px;
+    width: 350px;
+    box-shadow: 0 8px 32px #bdbdbd;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

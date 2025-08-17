@@ -17,6 +17,8 @@
             <div class="logo">
                 <i class="fas fa-shopping-bag"></i>
                 <h1>Mini Shop</h1>
+                 <button id="loginBtn" class="auth-btn">Đăng nhập</button>
+                <button id="registerBtn" class="auth-btn">Đăng ký</button>
             </div>
             <nav class="nav">
                 <a href="#home" class="nav-link">Trang chủ</a>
@@ -29,6 +31,33 @@
             </nav>
         </div>
     </header>
+       <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content" style="max-width: 350px;">
+            <span class="close" id="closeLogin" style="position:absolute;top:12px;right:18px;font-size:1.5rem;cursor:pointer;">&times;</span>
+            <h2 style="margin-bottom:18px;">Đăng nhập</h2>
+            <form id="loginForm" style="display:flex;flex-direction:column;gap:16px;">
+                <input type="text" id="username" placeholder="Tên đăng nhập" required>
+                <input type="password" id="password" placeholder="Mật khẩu" required>
+                <button type="submit" class="btn-primary">Đăng nhập</button>
+            </form>
+        </div>
+    </div>
+        <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content" style="max-width: 350px;">
+            <span class="close" id="closeRegister" style="position:absolute;top:12px;right:18px;font-size:1.5rem;cursor:pointer;">&times;</span>
+            <h2 style="margin-bottom:18px;">Đăng ký</h2>
+            <form id="registerForm" style="display:flex;flex-direction:column;gap:16px;">
+                <input type="text" id="regUsername" placeholder="Tên đăng nhập" required>
+                <input type="password" id="regPassword" placeholder="Mật khẩu" required>
+                <input type="password" id="regPassword2" placeholder="Nhập lại mật khẩu" required>
+                <button type="submit" class="btn-primary">Đăng ký</button>
+            </form>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <section id="home" class="hero">

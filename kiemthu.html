@@ -1,0 +1,1974 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Ngân Hàng SSL</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+            color: white;
+        }
+
+        .bank-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .bank-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+        }
+
+        .bank-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .bank-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .bank-balance {
+            font-size: 2rem;
+            margin: 15px 0;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .bank-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .account-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .account-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .transaction-history {
+            max-height: 500px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .transaction-item {
+            padding: 15px;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: white;
+        }
+
+        .transaction-in {
+            border-left: 4px solid #28a745;
+            background: #f8fff9;
+        }
+
+        .transaction-out {
+            border-left: 4px solid #dc3545;
+            background: #fff8f8;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            z-index: 1001;
+            display: none;
+        }
+
+        .notification.success {
+            background: #28a745;
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .bank-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+        }
+
+        <!DOCTYPE html>
+        <html lang="vi">
+        <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Ngân Hàng SSL</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+            color: white;
+        }
+
+        .bank-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .bank-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+        }
+
+        .bank-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .bank-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .bank-balance {
+            font-size: 2rem;
+            margin: 15px 0;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .bank-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .account-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .account-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .transaction-history {
+            max-height: 500px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .transaction-item {
+            padding: 15px;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: white;
+        }
+
+        .transaction-in {
+            border-left: 4px solid #28a745;
+            background: #f8fff9;
+        }
+
+        .transaction-out {
+            border-left: 4px solid #dc3545;
+            background: #fff8f8;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            z-index: 1001;
+            display: none;
+        }
+
+        .notification.success {
+            background: #28a745;
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .bank-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏦 Hệ Thống Quản Lý Ngân Hàng Ảo</h1>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('dashboard')">📊 Tổng Quan</div>
+            <div class="tab" onclick="showTab('create-bank')">🏪 Tạo Ngân Hàng</div>
+            <div class="tab" onclick="showTab('manage-accounts')">👥 Quản Lý Tài Khoản</div>
+            <div class="tab" onclick="showTab('transfer')">💸 Chuyển Tiền</div>
+            <div class="tab" onclick="showTab('history')">📋 Lịch Sử</div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-banks">0</div>
+                    <div>Tổng Số Ngân Hàng</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-accounts">0</div>
+                    <div>Tổng Số Tài Khoản</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-balance">0₫</div>
+                    <div>Tổng Số Dư</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-transactions">0</div>
+                    <div>Tổng Giao Dịch</div>
+                </div>
+            </div>
+            
+            <h2>🏦 Danh Sách Ngân Hàng</h2>
+            <div id="banks-container" class="bank-grid"></div>
+        </div>
+
+        <!-- Create Bank Tab -->
+        <div id="create-bank" class="tab-content">
+            <h2>🏪 Tạo Ngân Hàng Mới</h2>
+            <div class="form-group">
+                <label for="bank-name">Tên Ngân Hàng:</label>
+                <input type="text" id="bank-name" placeholder="Ví dụ: Ngân hàng ABC">
+            </div>
+            <div class="form-group">
+                <label for="bank-code">Mã Ngân Hàng:</label>
+                <input type="text" id="bank-code" placeholder="Ví dụ: ABC">
+            </div>
+            <div class="form-group">
+                <label for="initial-balance">Số Dư Khởi Tạo:</label>
+                <input type="number" id="initial-balance" placeholder="1000000" min="0">
+            </div>
+            <button class="btn btn-primary" onclick="createBank()">🏪 Tạo Ngân Hàng</button>
+        </div>
+
+        <!-- Manage Accounts Tab -->
+        <div id="manage-accounts" class="tab-content">
+            <h2>👥 Quản Lý Tài Khoản</h2>
+            <div class="form-group">
+                <label for="select-bank-account">Chọn Ngân Hàng:</label>
+                <select id="select-bank-account">
+                    <option value="">-- Chọn Ngân Hàng --</option>
+                </select>
+            </div>
+            
+            <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                <div style="flex: 1;">
+                    <div class="form-group">
+                        <label for="account-name">Tên Tài Khoản:</label>
+                        <input type="text" id="account-name" placeholder="Nguyen Van A">
+                    </div>
+                    <div class="form-group">
+                        <label for="account-balance">Số Dư Khởi Tạo:</label>
+                        <input type="number" id="account-balance" placeholder="5000000" min="0">
+                    </div>
+                    <button class="btn btn-success" onclick="createAccount()">👤 Tạo Tài Khoản</button>
+                </div>
+                <div style="flex: 1;">
+                    <h3>💰 Nạp/Rút Tiền</h3>
+                    <div class="form-group">
+                        <label for="select-account-balance">Chọn Tài Khoản:</label>
+                        <select id="select-account-balance">
+                            <option value="">-- Chọn Tài Khoản --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="balance-amount">Số Tiền:</label>
+                        <input type="number" id="balance-amount" placeholder="1000000">
+                    </div>
+                    <button class="btn btn-success" onclick="addBalance()">➕ Nạp Tiền</button>
+                    <button class="btn btn-danger" onclick="subtractBalance()">➖ Rút Tiền</button>
+                </div>
+            </div>
+            
+            <div id="accounts-list" class="account-list"></div>
+        </div>
+
+        <!-- Transfer Tab -->
+        <div id="transfer" class="tab-content">
+            <h2>💸 Chuyển Tiền</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div>
+                    <h3>Tài Khoản Gửi</h3>
+                    <div class="form-group">
+                        <label for="from-bank">Ngân Hàng:</label>
+                        <select id="from-bank" onchange="loadFromAccounts()">
+                            <option value="">-- Chọn Ngân Hàng --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="from-account">Tài Khoản:</label>
+                        <select id="from-account">
+                            <option value="">-- Chọn Tài Khoản --</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <h3>Tài Khoản Nhận</h3>
+                    <div class="form-group">
+                        <label for="to-bank">Ngân Hàng:</label>
+                        <select id="to-bank" onchange="loadToAccounts()">
+                            <option value="">-- Chọn Ngân Hàng --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="to-account">Tài Khoản:</label>
+                        <select id="to-account">
+                            <option value="">-- Chọn Tài Khoản --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="transfer-amount">Số Tiền Chuyển:</label>
+                <input type="number" id="transfer-amount" placeholder="1000000" min="1">
+            </div>
+            
+            <div class="form-group">
+                <label for="transfer-note">Ghi Chú:</label>
+                <textarea id="transfer-note" placeholder="Nội dung chuyển tiền..." rows="3"></textarea>
+            </div>
+            
+            <button class="btn btn-primary" onclick="transferMoney()">💸 Chuyển Tiền</button>
+        </div>
+
+        <!-- History Tab -->
+        <div id="history" class="tab-content">
+            <h2>📋 Lịch Sử Giao Dịch</h2>
+            <div style="margin-bottom: 20px;">
+                <select id="filter-bank" onchange="filterTransactions()">
+                    <option value="">-- Tất Cả Ngân Hàng --</option>
+                </select>
+                <select id="filter-type" onchange="filterTransactions()" style="margin-left: 10px;">
+                    <option value="">-- Tất Cả Loại --</option>
+                    <option value="transfer">Chuyển Tiền</option>
+                    <option value="deposit">Nạp Tiền</option>
+                    <option value="withdraw">Rút Tiền</option>
+                </select>
+                <button class="btn btn-danger" onclick="clearHistory()" style="margin-left: 10px;">🗑️ Xóa Lịch Sử</button>
+            </div>
+            <div id="transaction-history" class="transaction-history"></div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        class BankingSystem {
+            constructor() {
+                this.banks = JSON.parse(localStorage.getItem('banks') || '[]');
+                this.transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+                this.nextBankId = parseInt(localStorage.getItem('nextBankId') || '1');
+                this.nextAccountId = parseInt(localStorage.getItem('nextAccountId') || '1');
+                this.nextTransactionId = parseInt(localStorage.getItem('nextTransactionId') || '1');
+                
+                this.initializeDefaultBanks();
+                this.updateDashboard();
+                this.loadBankSelections();
+            }
+
+            initializeDefaultBanks() {
+                if (this.banks.length === 0) {
+                    const defaultBanks = [
+                        { name: 'Vietcombank', code: 'VCB', balance: 50000000 },
+                        { name: 'Techcombank', code: 'TCB', balance: 30000000 },
+                        { name: 'BIDV', code: 'BIDV', balance: 40000000 }
+                    ];
+                    
+                    defaultBanks.forEach(bank => {
+                        this.createBank(bank.name, bank.code, bank.balance, false);
+                    });
+                }
+            }
+
+            save() {
+                localStorage.setItem('banks', JSON.stringify(this.banks));
+                localStorage.setItem('transactions', JSON.stringify(this.transactions));
+                localStorage.setItem('nextBankId', this.nextBankId.toString());
+                localStorage.setItem('nextAccountId', this.nextAccountId.toString());
+                localStorage.setItem('nextTransactionId', this.nextTransactionId.toString());
+            }
+
+            createBank(name, code, initialBalance = 0, showNotification = true) {
+                const bank = {
+                    id: this.nextBankId++,
+                    name: name,
+                    code: code.toUpperCase(),
+                    balance: initialBalance,
+                    accounts: [],
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.banks.push(bank);
+                this.save();
+                
+                if (showNotification) {
+                    this.showNotification(`Đã tạo ngân hàng ${name} thành công!`, 'success');
+                }
+                
+                this.updateDashboard();
+                this.loadBankSelections();
+                return bank;
+            }
+
+            createAccount(bankId, name, initialBalance = 0) {
+                const bank = this.banks.find(b => b.id === bankId);
+                if (!bank) {
+                    this.showNotification('Không tìm thấy ngân hàng!', 'error');
+                    return null;
+                }
+
+                const account = {
+                    id: this.nextAccountId++,
+                    bankId: bankId,
+                    name: name,
+                    accountNumber: this.generateAccountNumber(),
+                    balance: initialBalance,
+                    createdAt: new Date().toISOString()
+                };
+
+                bank.accounts.push(account);
+                this.save();
+                
+                this.showNotification(`Đã tạo tài khoản ${name} thành công!`, 'success');
+                this.updateDashboard();
+                this.loadAccountsForBank();
+                
+                return account;
+            }
+
+            generateAccountNumber() {
+                return Math.floor(Math.random() * 9000000000) + 1000000000;
+            }
+
+            transferMoney(fromBankId, fromAccountId, toBankId, toAccountId, amount, note = '') {
+                const fromBank = this.banks.find(b => b.id === fromBankId);
+                const toBank = this.banks.find(b => b.id === toBankId);
+                
+                if (!fromBank || !toBank) {
+                    this.showNotification('Không tìm thấy ngân hàng!', 'error');
+                    return false;
+                }
+
+                const fromAccount = fromBank.accounts.find(a => a.id === fromAccountId);
+                const toAccount = toBank.accounts.find(a => a.id === toAccountId);
+                
+                if (!fromAccount || !toAccount) {
+                    this.showNotification('Không tìm thấy tài khoản!', 'error');
+                    return false;
+                }
+
+                if (fromAccount.balance < amount) {
+                    this.showNotification('Số dư không đủ để thực hiện giao dịch!', 'error');
+                    return false;
+                }
+
+                fromAccount.balance -= amount;
+                toAccount.balance += amount;
+
+                const transaction = {
+                    id: this.nextTransactionId++,
+                    type: 'transfer',
+                    fromBankId: fromBankId,
+                    fromAccountId: fromAccountId,
+                    toBankId: toBankId,
+                    toAccountId: toAccountId,
+                    amount: amount,
+                    note: note,
+                    timestamp: new Date().toISOString(),
+                    fromAccountName: fromAccount.name,
+                    toAccountName: toAccount.name,
+                    fromBankName: fromBank.name,
+                    toBankName: toBank.name
+                };
+
+                this.transactions.push(transaction);
+                this.save();
+                
+                this.showNotification(`Chuyển tiền thành công! ${this.formatCurrency(amount)}`, 'success');
+                this.updateDashboard();
+                return true;
+            }
+
+            addBalance(bankId, accountId, amount) {
+                const bank = this.banks.find(b => b.id === bankId);
+                if (!bank) return false;
+
+                const account = bank.accounts.find(a => a.id === accountId);
+                if (!account) return false;
+
+                account.balance += amount;
+
+                const transaction = {
+                    id: this.nextTransactionId++,
+                    type: 'deposit',
+                    bankId: bankId,
+                    accountId: accountId,
+                    amount: amount,
+                    timestamp: new Date().toISOString(),
+                    accountName: account.name,
+                    bankName: bank.name,
+                    note: 'Nạp tiền vào tài khoản'
+                };
+
+                this.transactions.push(transaction);
+                this.save();
+                
+                this.showNotification(`Nạp tiền thành công! ${this.formatCurrency(amount)}`, 'success');
+                this.updateDashboard();
+                return true;
+            }
+
+            subtractBalance(bankId, accountId, amount) {
+                const bank = this.banks.find(b => b.id === bankId);
+                if (!bank) return false;
+
+                const account = bank.accounts.find(a => a.id === accountId);
+                if (!account) return false;
+
+                if (account.balance < amount) {
+                    this.showNotification('Số dư không đủ!', 'error');
+                    return false;
+                }
+
+                account.balance -= amount;
+
+                const transaction = {
+                    id: this.nextTransactionId++,
+                    type: 'withdraw',
+                    bankId: bankId,
+                    accountId: accountId,
+                    amount: amount,
+                    timestamp: new Date().toISOString(),
+                    accountName: account.name,
+                    bankName: bank.name,
+                    note: 'Rút tiền từ tài khoản'
+                };
+
+                this.transactions.push(transaction);
+                this.save();
+                
+                this.showNotification(`Rút tiền thành công! ${this.formatCurrency(amount)}`, 'success');
+                this.updateDashboard();
+                return true;
+            }
+
+            formatCurrency(amount) {
+                return new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(amount);
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.className = `notification ${type}`;
+                notification.style.display = 'block';
+                
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }
+
+            updateDashboard() {
+                // Update statistics
+                document.getElementById('total-banks').textContent = this.banks.length;
+                
+                let totalAccounts = 0;
+                let totalBalance = 0;
+                
+                this.banks.forEach(bank => {
+                    totalAccounts += bank.accounts.length;
+                    bank.accounts.forEach(account => {
+                        totalBalance += account.balance;
+                    });
+                });
+                
+                document.getElementById('total-accounts').textContent = totalAccounts;
+                document.getElementById('total-balance').textContent = this.formatCurrency(totalBalance);
+                document.getElementById('total-transactions').textContent = this.transactions.length;
+
+                // Update banks display
+                this.displayBanks();
+            }
+
+            displayBanks() {
+                const container = document.getElementById('banks-container');
+                container.innerHTML = '';
+
+                this.banks.forEach(bank => {
+                    const totalBankBalance = bank.accounts.reduce((sum, acc) => sum + acc.balance, 0);
+                    
+                    const bankCard = document.createElement('div');
+                    bankCard.className = 'bank-card';
+                    bankCard.innerHTML = `
+                        <div class="bank-name">${bank.name} (${bank.code})</div>
+                        <div class="bank-balance">${this.formatCurrency(totalBankBalance)}</div>
+                        <div>👥 ${bank.accounts.length} tài khoản</div>
+                        <div class="bank-actions">
+                            <button class="btn btn-danger" onclick="bankingSystem.deleteBank(${bank.id})">🗑️ Xóa</button>
+                        </div>
+                    `;
+                    container.appendChild(bankCard);
+                });
+            }
+
+            deleteBank(bankId) {
+                if (confirm('Bạn có chắc muốn xóa ngân hàng này?')) {
+                    this.banks = this.banks.filter(b => b.id !== bankId);
+                    this.transactions = this.transactions.filter(t => 
+                        t.fromBankId !== bankId && t.toBankId !== bankId && t.bankId !== bankId
+                    );
+                    this.save();
+                    this.showNotification('Đã xóa ngân hàng thành công!', 'success');
+                    this.updateDashboard();
+                    this.loadBankSelections();
+                }
+            }
+
+            loadBankSelections() {
+                const selects = [
+                    'select-bank-account',
+                    'from-bank',
+                    'to-bank',
+                    'filter-bank'
+                ];
+
+                selects.forEach(selectId => {
+                    const select = document.getElementById(selectId);
+                    if (select) {
+                        const currentValue = select.value;
+                        select.innerHTML = selectId === 'filter-bank' ? 
+                            '<option value="">-- Tất Cả Ngân Hàng --</option>' :
+                            '<option value="">-- Chọn Ngân Hàng --</option>';
+                        
+                        this.banks.forEach(bank => {
+                            const option = document.createElement('option');
+                            option.value = bank.id;
+                            option.textContent = `${bank.name} (${bank.code})`;
+                            select.appendChild(option);
+                        });
+                        
+                        if (currentValue) {
+                            select.value = currentValue;
+                        }
+                    }
+                });
+
+                this.loadAccountsForBank();
+                this.displayTransactionHistory();
+            }
+
+            loadAccountsForBank() {
+                const bankSelect = document.getElementById('select-bank-account');
+                const accountsList = document.getElementById('accounts-list');
+                const balanceSelect = document.getElementById('select-account-balance');
+                
+                if (!bankSelect || !accountsList) return;
+
+                const bankId = parseInt(bankSelect.value);
+                accountsList.innerHTML = '';
+                balanceSelect.innerHTML = '<option value="">-- Chọn Tài Khoản --</option>';
+
+                if (bankId) {
+                    const bank = this.banks.find(b => b.id === bankId);
+                    if (bank) {
+                        bank.accounts.forEach(account => {
+                            const accountItem = document.createElement('div');
+                            accountItem.className = 'account-item';
+                            accountItem.innerHTML = `
+                                <div style="flex: 1;">
+                                    <strong>${account.name}</strong><br>
+                                    STK: ${account.accountNumber}<br>
+                                    Số dư: ${this.formatCurrency(account.balance)}
+                                </div>
+                                <button class="btn btn-danger" onclick="bankingSystem.deleteAccount(${bankId}, ${account.id})">🗑️</button>
+                            `;
+                            accountsList.appendChild(accountItem);
+
+                            const option = document.createElement('option');
+                            option.value = account.id;
+                            option.textContent = `${account.name} - ${this.formatCurrency(account.balance)}`;
+                            balanceSelect.appendChild(option);
+                        });
+                    }
+                }
+            }
+
+            deleteAccount(bankId, accountId) {
+                if (confirm('Bạn có chắc muốn xóa tài khoản này?')) {
+                    const bank = this.banks.find(b => b.id === bankId);
+                    if (bank) {
+                        bank.accounts = bank.accounts.filter(a => a.id !== accountId);
+                        this.transactions = this.transactions.filter(t => 
+                            t.fromAccountId !== accountId && t.toAccountId !== accountId && t.accountId !== accountId
+                        );
+                        this.save();
+                        this.showNotification('Đã xóa tài khoản thành công!', 'success');
+                        this.updateDashboard();
+                        this.loadAccountsForBank();
+                    }
+                }
+            }
+
+            loadFromAccounts() {
+                const bankId = parseInt(document.getElementById('from-bank').value);
+                const accountSelect = document.getElementById('from-account');
+                
+                accountSelect.innerHTML = '<option value="">-- Chọn Tài Khoản --</option>';
+                
+                if (bankId) {
+                    const bank = this.banks.find(b => b.id === bankId);
+                    if (bank) {
+                        bank.accounts.forEach(account => {
+                            const option = document.createElement('option');
+                            option.value = account.id;
+                            option.textContent = `${account.name} - ${this.formatCurrency(account.balance)}`;
+                            accountSelect.appendChild(option);
+                        });
+                    }
+                }
+            }
+
+            loadToAccounts() {
+                const bankId = parseInt(document.getElementById('to-bank').value);
+                const accountSelect = document.getElementById('to-account');
+                
+                accountSelect.innerHTML = '<option value="">-- Chọn Tài Khoản --</option>';
+                
+                if (bankId) {
+                    const bank = this.banks.find(b => b.id === bankId);
+                    if (bank) {
+                        bank.accounts.forEach(account => {
+                            const option = document.createElement('option');
+                            option.value = account.id;
+                            option.textContent = `${account.name} - STK: ${account.accountNumber}`;
+                            accountSelect.appendChild(option);
+                        });
+                    }
+                }
+            }
+
+            displayTransactionHistory() {
+                const container = document.getElementById('transaction-history');
+                if (!container) return;
+
+                container.innerHTML = '';
+
+                const filterBank = document.getElementById('filter-bank')?.value;
+                const filterType = document.getElementById('filter-type')?.value;
+
+                let filteredTransactions = [...this.transactions];
+
+                if (filterBank) {
+                    filteredTransactions = filteredTransactions.filter(t => 
+                        t.fromBankId == filterBank || t.toBankId == filterBank || t.bankId == filterBank
+                    );
+                }
+
+                if (filterType) {
+                    filteredTransactions = filteredTransactions.filter(t => t.type === filterType);
+                }
+
+                filteredTransactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                if (filteredTransactions.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; padding: 50px; color: #666;">Chưa có giao dịch nào</div>';
+                    return;
+                }
+
+                filteredTransactions.forEach(transaction => {
+                    const transactionDiv = document.createElement('div');
+                    transactionDiv.className = 'transaction-item';
+                    
+                    let content = '';
+                    let className = 'transaction-item';
+
+                    if (transaction.type === 'transfer') {
+                        className += ' transaction-out';
+                        content = `
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong>💸 Chuyển Tiền</strong><br>
+                                    Từ: ${transaction.fromAccountName} (${transaction.fromBankName})<br>
+                                    Đến: ${transaction.toAccountName} (${transaction.toBankName})<br>
+                                    ${transaction.note ? `Ghi chú: ${transaction.note}` : ''}
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 1.2rem; font-weight: bold; color: #dc3545;">
+                                        -${this.formatCurrency(transaction.amount)}
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #666;">
+                                        ${new Date(transaction.timestamp).toLocaleString('vi-VN')}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else if (transaction.type === 'deposit') {
+                        className += ' transaction-in';
+                        content = `
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong>➕ Nạp Tiền</strong><br>
+                                    Tài khoản: ${transaction.accountName} (${transaction.bankName})<br>
+                                    ${transaction.note || 'Nạp tiền vào tài khoản'}
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 1.2rem; font-weight: bold; color: #28a745;">
+                                        +${this.formatCurrency(transaction.amount)}
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #666;">
+                                        ${new Date(transaction.timestamp).toLocaleString('vi-VN')}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else if (transaction.type === 'withdraw') {
+                        className += ' transaction-out';
+                        content = `
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong>➖ Rút Tiền</strong><br>
+                                    Tài khoản: ${transaction.accountName} (${transaction.bankName})<br>
+                                    ${transaction.note || 'Rút tiền từ tài khoản'}
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 1.2rem; font-weight: bold; color: #dc3545;">
+                                        -${this.formatCurrency(transaction.amount)}
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #666;">
+                                        ${new Date(transaction.timestamp).toLocaleString('vi-VN')}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    transactionDiv.className = className;
+                    transactionDiv.innerHTML = content;
+                    container.appendChild(transactionDiv);
+                });
+            }
+
+            clearHistory() {
+                if (confirm('Bạn có chắc muốn xóa toàn bộ lịch sử giao dịch?')) {
+                    this.transactions = [];
+                    this.save();
+                    this.showNotification('Đã xóa lịch sử giao dịch!', 'success');
+                    this.updateDashboard();
+                    this.displayTransactionHistory();
+                }
+            }
+        }
+
+        // Initialize the banking system
+        const bankingSystem = new BankingSystem();
+
+        // Tab functions
+        function showTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+
+            // Refresh data when switching tabs
+            if (tabName === 'manage-accounts') {
+                bankingSystem.loadAccountsForBank();
+            } else if (tabName === 'history') {
+                bankingSystem.displayTransactionHistory();
+            } else if (tabName === 'transfer') {
+                bankingSystem.loadFromAccounts();
+                bankingSystem.loadToAccounts();
+            }
+        }
+
+        // Bank creation
+        function createBank() {
+            const name = document.getElementById('bank-name').value.trim();
+            const code = document.getElementById('bank-code').value.trim();
+            const balance = parseFloat(document.getElementById('initial-balance').value) || 0;
+
+            if (!name || !code) {
+                bankingSystem.showNotification('Vui lòng nhập đầy đủ thông tin!', 'error');
+                return;
+            }
+
+            if (bankingSystem.banks.some(bank => bank.code === code.toUpperCase())) {
+                bankingSystem.showNotification('Mã ngân hàng đã tồn tại!', 'error');
+                return;
+            }
+
+            bankingSystem.createBank(name, code, balance);
+
+            // Clear form
+            document.getElementById('bank-name').value = '';
+            document.getElementById('bank-code').value = '';
+            document.getElementById('initial-balance').value = '';
+        }
+
+        // Account creation
+        function createAccount() {
+            const bankId = parseInt(document.getElementById('select-bank-account').value);
+            const name = document.getElementById('account-name').value.trim();
+            const balance = parseFloat(document.getElementById('account-balance').value) || 0;
+
+            if (!bankId || !name) {
+                bankingSystem.showNotification('Vui lòng chọn ngân hàng và nhập tên tài khoản!', 'error');
+                return;
+            }
+
+            bankingSystem.createAccount(bankId, name, balance);
+
+            // Clear form
+            document.getElementById('account-name').value = '';
+            document.getElementById('account-balance').value = '';
+        }
+
+        // Balance management
+        function addBalance() {
+            const accountId = parseInt(document.getElementById('select-account-balance').value);
+            const bankId = parseInt(document.getElementById('select-bank-account').value);
+            const amount = parseFloat(document.getElementById('balance-amount').value);
+
+            if (!accountId || !bankId || !amount || amount <= 0) {
+                bankingSystem.showNotification('Vui lòng chọn tài khoản và nhập số tiền hợp lệ!', 'error');
+                return;
+            }
+
+            bankingSystem.addBalance(bankId, accountId, amount);
+            document.getElementById('balance-amount').value = '';
+            bankingSystem.loadAccountsForBank();
+        }
+
+        function subtractBalance() {
+            const accountId = parseInt(document.getElementById('select-account-balance').value);
+            const bankId = parseInt(document.getElementById('select-bank-account').value);
+            const amount = parseFloat(document.getElementById('balance-amount').value);
+
+            if (!accountId || !bankId || !amount || amount <= 0) {
+                bankingSystem.showNotification('Vui lòng chọn tài khoản và nhập số tiền hợp lệ!', 'error');
+                return;
+            }
+
+            bankingSystem.subtractBalance(bankId, accountId, amount);
+            document.getElementById('balance-amount').value = '';
+            bankingSystem.loadAccountsForBank();
+        }
+
+        // Money transfer
+        function transferMoney() {
+            const fromBankId = parseInt(document.getElementById('from-bank').value);
+            const fromAccountId = parseInt(document.getElementById('from-account').value);
+            const toBankId = parseInt(document.getElementById('to-bank').value);
+            const toAccountId = parseInt(document.getElementById('to-account').value);
+            const amount = parseFloat(document.getElementById('transfer-amount').value);
+            const note = document.getElementById('transfer-note').value.trim();
+
+            if (!fromBankId || !fromAccountId || !toBankId || !toAccountId || !amount || amount <= 0) {
+                bankingSystem.showNotification('Vui lòng điền đầy đủ thông tin chuyển tiền!', 'error');
+                return;
+            }
+
+            if (fromBankId === toBankId && fromAccountId === toAccountId) {
+                bankingSystem.showNotification('Không thể chuyển tiền cho chính mình!', 'error');
+                return;
+            }
+
+            if (bankingSystem.transferMoney(fromBankId, fromAccountId, toBankId, toAccountId, amount, note)) {
+                // Clear form
+                document.getElementById('from-bank').value = '';
+                document.getElementById('from-account').value = '';
+                document.getElementById('to-bank').value = '';
+                document.getElementById('to-account').value = '';
+                document.getElementById('transfer-amount').value = '';
+                document.getElementById('transfer-note').value = '';
+                
+                bankingSystem.loadFromAccounts();
+                bankingSystem.loadToAccounts();
+            }
+        }
+
+        // Event listeners for account management
+        document.getElementById('select-bank-account')?.addEventListener('change', function() {
+            bankingSystem.loadAccountsForBank();
+        });
+
+        // Filter transactions
+        function filterTransactions() {
+            bankingSystem.displayTransactionHistory();
+        }
+
+        // Clear transaction history
+        function clearHistory() {
+            bankingSystem.clearHistory();
+        }
+
+        // Load functions for transfer accounts
+        function loadFromAccounts() {
+            bankingSystem.loadFromAccounts();
+        }
+
+        function loadToAccounts() {
+            bankingSystem.loadToAccounts();
+        }
+
+        // Auto-generate bank codes
+        document.getElementById('bank-name')?.addEventListener('input', function(e) {
+            const name = e.target.value.trim();
+            const codeInput = document.getElementById('bank-code');
+            
+            if (name && !codeInput.value) {
+                // Generate code from first letters of each word
+                const words = name.split(' ');
+                let code = '';
+                words.forEach(word => {
+                    if (word.length > 0) {
+                        code += word[0].toUpperCase();
+                    }
+                });
+                codeInput.value = code.substring(0, 5);
+            }
+        });
+
+        // Add some sample data for demonstration
+        setTimeout(() => {
+            if (bankingSystem.banks.length > 0 && bankingSystem.banks[0].accounts.length === 0) {
+                // Add sample accounts
+                bankingSystem.createAccount(bankingSystem.banks[0].id, 'Nguyen Van A', 5000000);
+                bankingSystem.createAccount(bankingSystem.banks[0].id, 'Tran Thi B', 3000000);
+                
+                if (bankingSystem.banks.length > 1) {
+                    bankingSystem.createAccount(bankingSystem.banks[1].id, 'Le Van C', 7000000);
+                    bankingSystem.createAccount(bankingSystem.banks[1].id, 'Pham Thi D', 2000000);
+                }
+            }
+        }, 100);
+    </script>
+</body>
+</html>
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏦 Hệ Thống Quản Lý Ngân Hàng SSL</h1>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('dashboard')">📊 Tổng Quan</div>
+            <div class="tab" onclick="showTab('create-bank')">🏪 Tạo Ngân Hàng</div>
+            <div class="tab" onclick="showTab('manage-accounts')">👥 Quản Lý Tài Khoản</div>
+            <div class="tab" onclick="showTab('transfer')">💸 Chuyển Tiền</div>
+            <div class="tab" onclick="showTab('history')">📋 Lịch Sử</div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-banks">0</div>
+                    <div>Tổng Số Ngân Hàng</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-accounts">0</div>
+                    <div>Tổng Số Tài Khoản</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-balance">0₫</div>
+                    <div>Tổng Số Dư</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-transactions">0</div>
+                    <div>Tổng Giao Dịch</div>
+                </div>
+            </div>
+            
+            <h2>🏦 Danh Sách Ngân Hàng</h2>
+            <div id="banks-container" class="bank-grid"></div>
+        </div>
+
+        <!-- Create Bank Tab -->
+        <div id="create-bank" class="tab-content">
+            <h2>🏪 Tạo Ngân Hàng Mới</h2>
+            <div class="form-group">
+                <label for="bank-name">Tên Ngân Hàng:</label>
+                <input type="text" id="bank-name" placeholder="Ví dụ: Ngân hàng ABC">
+            </div>
+            <div class="form-group">
+                <label for="bank-code">Mã Ngân Hàng:</label>
+                <input type="text" id="bank-code" placeholder="Ví dụ: ABC">
+            </div>
+            <div class="form-group">
+                <label for="initial-balance">Số Dư Khởi Tạo:</label>
+                <input type="number" id="initial-balance" placeholder="1000000" min="0">
+            </div>
+            <button class="btn btn-primary" onclick="createBank()">🏪 Tạo Ngân Hàng</button>
+        </div>
+
+        <!-- Manage Accounts Tab -->
+        <div id="manage-accounts" class="tab-content">
+            <h2>👥 Quản Lý Tài Khoản</h2>
+            <div class="form-group">
+                <label for="select-bank-account">Chọn Ngân Hàng:</label>
+                <select id="select-bank-account">
+                    <option value="">-- Chọn Ngân Hàng --</option>
+                </select>
+            </div>
+            
+            <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                <div style="flex: 1;">
+                    <div class="form-group">
+                        <label for="account-name">Tên Tài Khoản:</label>
+                        <input type="text" id="account-name" placeholder="Nguyen Van A">
+                    </div>
+                    <div class="form-group">
+                        <label for="account-balance">Số Dư Khởi Tạo:</label>
+                        <input type="number" id="account-balance" placeholder="5000000" min="0">
+                    </div>
+                    <button class="btn btn-success" onclick="createAccount()">👤 Tạo Tài Khoản</button>
+                </div>
+                <div style="flex: 1;">
+                    <h3>💰 Nạp/Rút Tiền</h3>
+                    <div class="form-group">
+                        <label for="select-account-balance">Chọn Tài Khoản:</label>
+                        <select id="select-account-balance">
+                            <option value="">-- Chọn Tài Khoản --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="balance-amount">Số Tiền:</label>
+                        <input type="number" id="balance-amount" placeholder="1000000">
+                    </div>
+                    <button class="btn btn-success" onclick="addBalance()">➕ Nạp Tiền</button>
+                    <button class="btn btn-danger" onclick="subtractBalance()">➖ Rút Tiền</button>
+                </div>
+            </div>
+            
+            <div id="accounts-list" class="account-list"></div>
+        </div>
+
+        <!-- Transfer Tab -->
+        <div id="transfer" class="tab-content">
+            <h2>💸 Chuyển Tiền</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div>
+                    <h3>Tài Khoản Gửi</h3>
+                    <div class="form-group">
+                        <label for="from-bank">Ngân Hàng:</label>
+                        <select id="from-bank" onchange="loadFromAccounts()">
+                            <option value="">-- Chọn Ngân Hàng --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="from-account">Tài Khoản:</label>
+                        <select id="from-account">
+                            <option value="">-- Chọn Tài Khoản --</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <h3>Tài Khoản Nhận</h3>
+                    <div class="form-group">
+                        <label for="to-bank">Ngân Hàng:</label>
+                        <select id="to-bank" onchange="loadToAccounts()">
+                            <option value="">-- Chọn Ngân Hàng --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="to-account">Tài Khoản:</label>
+                        <select id="to-account">
+                            <option value="">-- Chọn Tài Khoản --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="transfer-amount">Số Tiền Chuyển:</label>
+                <input type="number" id="transfer-amount" placeholder="1000000" min="1">
+            </div>
+            
+            <div class="form-group">
+                <label for="transfer-note">Ghi Chú:</label>
+                <textarea id="transfer-note" placeholder="Nội dung chuyển tiền..." rows="3"></textarea>
+            </div>
+            
+            <button class="btn btn-primary" onclick="transferMoney()">💸 Chuyển Tiền</button>
+        </div>
+
+        <!-- History Tab -->
+        <div id="history" class="tab-content">
+            <h2>📋 Lịch Sử Giao Dịch</h2>
+            <div style="margin-bottom: 20px;">
+                <select id="filter-bank" onchange="filterTransactions()">
+                    <option value="">-- Tất Cả Ngân Hàng --</option>
+                </select>
+                <select id="filter-type" onchange="filterTransactions()" style="margin-left: 10px;">
+                    <option value="">-- Tất Cả Loại --</option>
+                    <option value="transfer">Chuyển Tiền</option>
+                    <option value="deposit">Nạp Tiền</option>
+                    <option value="withdraw">Rút Tiền</option>
+                </select>
+                <button class="btn btn-danger" onclick="clearHistory()" style="margin-left: 10px;">🗑️ Xóa Lịch Sử</button>
+            </div>
+            <div id="transaction-history" class="transaction-history"></div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        class BankingSystem {
+            constructor() {
+                this.banks = JSON.parse(localStorage.getItem('banks') || '[]');
+                this.transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+                this.nextBankId = parseInt(localStorage.getItem('nextBankId') || '1');
+                this.nextAccountId = parseInt(localStorage.getItem('nextAccountId') || '1');
+                this.nextTransactionId = parseInt(localStorage.getItem('nextTransactionId') || '1');
+                
+                this.initializeDefaultBanks();
+                this.updateDashboard();
+                this.loadBankSelections();
+            }
+
+            initializeDefaultBanks() {
+                if (this.banks.length === 0) {
+                    const defaultBanks = [
+                        { name: 'Vietcombank', code: 'VCB', balance: 50000000 },
+                        { name: 'Techcombank', code: 'TCB', balance: 30000000 },
+                        { name: 'BIDV', code: 'BIDV', balance: 40000000 }
+                    ];
+                    
+                    defaultBanks.forEach(bank => {
+                        this.createBank(bank.name, bank.code, bank.balance, false);
+                    });
+                }
+            }
+
+            save() {
+                localStorage.setItem('banks', JSON.stringify(this.banks));
+                localStorage.setItem('transactions', JSON.stringify(this.transactions));
+                localStorage.setItem('nextBankId', this.nextBankId.toString());
+                localStorage.setItem('nextAccountId', this.nextAccountId.toString());
+                localStorage.setItem('nextTransactionId', this.nextTransactionId.toString());
+            }
+
+            createBank(name, code, initialBalance = 0, showNotification = true) {
+                const bank = {
+                    id: this.nextBankId++,
+                    name: name,
+                    code: code.toUpperCase(),
+                    balance: initialBalance,
+                    accounts: [],
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.banks.push(bank);
+                this.save();
+                
+                if (showNotification) {
+                    this.showNotification(`Đã tạo ngân hàng ${name} thành công!`, 'success');
+                }
+                
+                this.updateDashboard();
+                this.loadBankSelections();
+                return bank;
+            }
+
+            createAccount(bankId, name, initialBalance = 0) {
+                const bank = this.banks.find(b => b.id === bankId);
+                if (!bank) {
+                    this.showNotification('Không tìm thấy ngân hàng!', 'error');
+                    return null;
+                }
+
+                const account = {
+                    id: this.nextAccountId++,
+                    bankId: bankId,
+                    name: name,
+                    accountNumber: this.generateAccountNumber(),
+                    balance: initialBalance,
+                    createdAt: new Date().toISOString()
+                };
+
+                bank.accounts.push(account);
+                this.save();
+                
+                this.showNotification(`Đã tạo tài khoản ${name} thành công!`, 'success');
+                this.updateDashboard();
+                this.loadAccountsForBank();
+                
+                return account;
+            }
+
+            generateAccountNumber() {
+                return Math.floor(Math.random() * 9000000000) + 1000000000;
+            }
+
+            transferMoney(fromBankId, fromAccountId, toBankId, toAccountId, amount, note = '') {
+                const fromBank = this.banks.find(b => b.id === fromBankId);
+                const toBank = this.banks.find(b => b.id === toBankId);
+                
+                if (!fromBank || !toBank) {
+                    this.showNotification('Không tìm thấy ngân hàng!', 'error');
+                    return false;
+                }
+
+                const fromAccount = fromBank.accounts.find(a => a.id === fromAccountId);
+                const toAccount = toBank.accounts.find(a => a.id === toAccountId);
+                
+                if (!fromAccount || !toAccount) {
+                    this.showNotification('Không tìm thấy tài khoản!', 'error');
+                    return false;
+                }
+
+                if (fromAccount.balance < amount) {
+                    this.showNotification('Số dư không đủ để thực hiện giao dịch!', 'error');
+                    return false;
+                }
+
+                fromAccount.balance -= amount;
+                toAccount.balance += amount;
+
+                const transaction = {
+                    id: this.nextTransactionId++,
+                    type: 'transfer',
+                    fromBankId: fromBankId,
+                    fromAccountId: fromAccountId,
+                    toBankId: toBankId,
+                    toAccountId: toAccountId,
+                    amount: amount,
+                    note: note,
+                    timestamp: new Date().toISOString(),
+                    fromAccountName: fromAccount.name,
+                    toAccountName: toAccount.name,
+                    fromBankName: fromBank.name,
+                    toBankName: toBank.name
+                };
+
+                this.transactions.push(transaction);
+                this.save();
+                
+                this.showNotification(`Chuyển tiền thành công! ${this.formatCurrency(amount)}`, 'success');
+                this.updateDashboard();
+                return true;
+            }
+
+            addBalance(bankId, accountId, amount) {
+                const bank = this.banks.find(b => b.id === bankId);
+                if (!bank) return false;
+
+                const account = bank.accounts.find(a => a.id === accountId);
+                if (!account) return false;
+
+                account.balance += amount;
+
+                const transaction = {
+                    id: this.nextTransactionId++,
+                    type: 'deposit',
+                    bankId: bankId,
+                    accountId: accountId,
+                    amount: amount,
+                    timestamp: new Date().toISOString(),
+                    accountName: account.name,
+                    bankName: bank.name,
+                    note: 'Nạp tiền vào tài khoản'
+                };
+
+                this.transactions.push(transaction);
+                this.save();
+                
+                this.showNotification(`Nạp tiền thành công! ${this.formatCurrency(amount)}`, 'success');
+                this.updateDashboard();
+                return true;
+            }
+
+            subtractBalance(bankId, accountId, amount) {
+                const bank = this.banks.find(b => b.id === bankId);
+                if (!bank) return false;
+
+                const account = bank.accounts.find(a => a.id === accountId);
+                if (!account) return false;
+
+                if (account.balance < amount) {
+                    this.showNotification('Số dư không đủ!', 'error');
+                    return false;
+                }
+
+                account.balance -= amount;
+
+                const transaction = {
+                    id: this.nextTransactionId++,
+                    type: 'withdraw',
+                    bankId: bankId,
+                    accountId: accountId,
+                    amount: amount,
+                    timestamp: new Date().toISOString(),
+                    accountName: account.name,
+                    bankName: bank.name,
+                    note: 'Rút tiền từ tài khoản'
+                };
+
+                this.transactions.push(transaction);
+                this.save();
+                
+                this.showNotification(`Rút tiền thành công! ${this.formatCurrency(amount)}`, 'success');
+                this.updateDashboard();
+                return true;
+            }
+
+            formatCurrency(amount) {
+                return new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(amount);
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.className = `notification ${type}`;
+                notification.style.display = 'block';
+                
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }
+
+            updateDashboard() {
+                // Update statistics
+                document.getElementById('total-banks').textContent = this.banks.length;
+                
+                let totalAccounts = 0;
+                let totalBalance = 0;
+                
+                this.banks.forEach(bank => {
+                    totalAccounts += bank.accounts.length;
+                    bank.accounts.forEach(account => {
+                        totalBalance += account.balance;
+                    });
+                });
+                
+                document.getElementById('total-accounts').textContent = totalAccounts;
+                document.getElementById('total-balance').textContent = this.formatCurrency(totalBalance);
+                document.getElementById('total-transactions').textContent = this.transactions.length;
+
+                // Update banks display
+                this.displayBanks();
+            }
+
+            displayBanks() {
+                const container = document.getElementById('banks-container');
+                container.innerHTML = '';
+
+                this.banks.forEach(bank => {
+                    const totalBankBalance = bank.accounts.reduce((sum, acc) => sum + acc.balance, 0);
+                    
+                    const bankCard = document.createElement('div');
+                    bankCard.className = 'bank-card';
+                    bankCard.innerHTML = `
+                        <div class="bank-name">${bank.name} (${bank.code})</div>
+                        <div class="bank-balance">${this.formatCurrency(totalBankBalance)}</div>
+                        <div>👥 ${bank.accounts.length} tài khoản</div>
+                        <div class="bank-actions">
+                            <button class="btn btn-danger" onclick="bankingSystem.deleteBank(${bank.id})">🗑️ Xóa</button>
+                        </div>
+                    `;
+                    container.appendChild(bankCard);
+                });
+            }
+
+            deleteBank(bankId) {
+                if (confirm('Bạn có chắc muốn xóa ngân hàng này?')) {
+                    this.banks = this.banks.filter(b => b.id !== bankId);
+                    this.transactions = this.transactions.filter(t => 
+                        t.fromBankId !== bankId && t.toBankId !== bankId && t.bankId !== bankId
+                    );
+                    this.save();
+                    this.showNotification('Đã xóa ngân hàng thành công!', 'success');
+                    this.updateDashboard();
+                    this.loadBankSelections();
+                }
+            }
+
+            loadBankSelections() {
+                const selects = [
+                    'select-bank-account',
+                    'from-bank',
+                    'to-bank',
+                    'filter-bank'
+                ];
+
+                selects.forEach(selectId => {
+                    const select = document.getElementById(selectId);
+                    if (select) {
+                        const currentValue = select.value;
+                        select.innerHTML = selectId === 'filter-bank' ? 
+                            '<option value="">-- Tất Cả Ngân Hàng --</option>' :
+                            '<option value="">-- Chọn Ngân Hàng --</option>';
+                        
+                        this.banks.forEach(bank => {
+                            const option = document.createElement('option');
+                            option.value = bank.id;
+                            option.textContent = `${bank.name} (${bank.code})`;
+                            select.appendChild(option);
+                        });
+                        
+                        if (currentValue) {
+                            select.value = currentValue;
+                        }
+                    }
+                });
+
+                this.loadAccountsForBank();
+                this.displayTransactionHistory();
+            }
+
+            loadAccountsForBank() {
+                const bankSelect = document.getElementById('select-bank-account');
+                const accountsList = document.getElementById('accounts-list');
+                const balanceSelect = document.getElementById('select-account-balance');
+                
+                if (!bankSelect || !accountsList) return;
+
+                const bankId = parseInt(bankSelect.value);
+                accountsList.innerHTML = '';
+                balanceSelect.innerHTML = '<option value="">-- Chọn Tài Khoản --</option>';
+
+                if (bankId) {
+                    const bank = this.banks.find(b => b.id === bankId);
+                    if (bank) {
+                        bank.accounts.forEach(account => {
+                            const accountItem = document.createElement('div');
+                            accountItem.className = 'account-item';
+                            accountItem.innerHTML = `
+                                <div style="flex: 1;">
+                                    <strong>${account.name}</strong><br>
+                                    STK: ${account.accountNumber}<br>
+                                    Số dư: ${this.formatCurrency(account.balance)}
+                                </div>
+                                <button class="btn btn-danger" onclick="bankingSystem.deleteAccount(${bankId}, ${account.id})">🗑️
